@@ -20,7 +20,12 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
-
+buildTypes {
+        release {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
+        }
+    }
     kotlinOptions {
         jvmTarget = _jvmTarget
     }
