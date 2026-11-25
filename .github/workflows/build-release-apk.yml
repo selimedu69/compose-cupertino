@@ -1,11 +1,35 @@
-- name: Sign Release APK
+name: Build Android Release APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build Android Demo Release APK
+        run: ./gradlew :example:androidApp:assembleRelease --no-daemon
+
+      - name: Sign Release APK
         run: |
-          echo "=== Üretilen tüm APK dosyaları ==="
+          echo "=== Uretilen tum APK dosyalari ==="
           APKS=$(find . -type f -name "*.apk" ! -path "./signed-apks/*")
           echo "$APKS"
 
           if [ -z "$APKS" ]; then
-            echo "HATA: Gradle hiç APK üretmedi!"
+            echo "HATA: Gradle hic APK uretmedi!"
             exit 1
           fi
 
@@ -27,3 +51,10 @@
               "signed-apks/${base}-aligned.apk"
             rm "signed-apks/${base}-aligned.apk"
           done
+
+      - name: Upload Signed Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: compose-cupertino-release-apk
+          path: signed-apks/*-signed.apk
+          if-no-files-found: error
